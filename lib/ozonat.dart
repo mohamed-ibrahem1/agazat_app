@@ -11,6 +11,10 @@ class OzonatPage extends StatefulWidget {
 }
 
 class _OzonatPageState extends State<OzonatPage> {
+  //**********************************
+  // Add this variable to track the total hours
+  int _totalHours = 0;
+  //**********************************
   int? _selectedNumber;
   String? _selectedTime;
   DateTime? _selectedDate;
@@ -31,31 +35,52 @@ class _OzonatPageState extends State<OzonatPage> {
         box.get('savedRecords', defaultValue: <Map<String, dynamic>>[]);
     if (records is List) {
       setState(() {
-        _savedRecords.addAll(records.map((record) {
-          return {
+        _savedRecords.clear();
+        _cardColors.clear();
+
+        for (var record in records) {
+          _savedRecords.add({
             'number': record['number'],
             'time': record['time'],
             'note': record['note'],
             'date':
                 record['date'] != null ? DateTime.parse(record['date']) : null,
-          };
-        }).toList());
-        _cardColors
-            .addAll(List<Color>.filled(_savedRecords.length, Colors.red));
+          });
+          // Load the card color state (active or inactive)
+          _cardColors.add(record['isActive'] == true
+              ? Color.fromRGBO(46, 29, 61, 1)
+              : Colors.red);
+        }
+        _calculateTotalHours();
       });
     }
   }
 
+  //*************************************
+  // Add method to calculate total hours
+  void _calculateTotalHours() {
+    _totalHours = 0;
+    for (var record in _savedRecords) {
+      if (record['number'] is int) {
+        _totalHours += record['number'] as int;
+      }
+    }
+  }
+  //*************************************
+
+  // Update save method to include card colors
   _saveRecords() {
     final box = Hive.box('ozonatBox');
-    final recordsToSave = _savedRecords.map((record) {
-      return {
-        'number': record['number'],
-        'time': record['time'],
-        'note': record['note'],
-        'date': record['date']?.toIso8601String(),
-      };
-    }).toList();
+    final recordsToSave = List<Map<String, dynamic>>.generate(
+      _savedRecords.length,
+      (index) => {
+        'number': _savedRecords[index]['number'],
+        'time': _savedRecords[index]['time'],
+        'note': _savedRecords[index]['note'],
+        'date': _savedRecords[index]['date']?.toIso8601String(),
+        'isActive': _cardColors[index] == Color.fromRGBO(46, 29, 61, 1),
+      },
+    );
     box.put('savedRecords', recordsToSave);
   }
 
@@ -64,6 +89,9 @@ class _OzonatPageState extends State<OzonatPage> {
       setState(() {
         _savedRecords.removeAt(index);
         _cardColors.removeAt(index);
+        //*************************************
+        _calculateTotalHours();
+        //*************************************
       });
       _saveRecords();
     }
@@ -76,6 +104,7 @@ class _OzonatPageState extends State<OzonatPage> {
             ? Color.fromRGBO(46, 29, 61, 1)
             : Colors.red;
       });
+      _saveRecords(); // Save after changing color
     }
   }
 
@@ -83,6 +112,9 @@ class _OzonatPageState extends State<OzonatPage> {
     setState(() {
       _savedRecords.clear();
       _cardColors.clear();
+      //*************************************
+      _totalHours = 0;
+      //*************************************
     });
     _saveRecords();
   }
@@ -214,9 +246,25 @@ class _OzonatPageState extends State<OzonatPage> {
                   borderRadius: BorderRadius.circular(15.0),
                 ),
               ),
-              maxLines: 2,
+              maxLines: 1,
             ),
           ),
+          //////////////////////////////////////////////////////
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(width: 8),
+              Text(
+                'مجموع الساعات: $_totalHours',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          ////////////////////////////////////////////////////
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -232,6 +280,11 @@ class _OzonatPageState extends State<OzonatPage> {
                         'note': _noteController.text,
                         'date': _selectedDate,
                       });
+                      /////////////////////////////////////////////////////////////////////////////
+                      // Update total hours
+                      _totalHours += _selectedNumber!;
+                      /////////////////////////////////////////////////////////////////////////////
+
                       _cardColors.add(Colors.red);
                       _selectedNumber = null;
                       _selectedTime = null;

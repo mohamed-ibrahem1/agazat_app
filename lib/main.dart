@@ -62,25 +62,50 @@ class AgazatState extends State<Agazat> {
 
   _loadSelectedDates() {
     final box = Hive.box('datesBox');
-    final dateStrings = box.get('selectedDates', defaultValue: <String>[]);
-    if (dateStrings is List) {
+    final savedData =
+        box.get('savedAgazat', defaultValue: <Map<String, dynamic>>[]);
+    if (savedData is List) {
       setState(() {
-        _selectedDates.addAll((dateStrings as List<String>)
-            .map((date) => DateTime.parse(date))
-            .toList());
+        _selectedDates.clear();
+        _tileColors.clear();
+
+        for (var item in savedData) {
+          _selectedDates.add(DateTime.parse(item['date']));
+          _tileColors.add(item['isActive'] == true
+              ? Color.fromRGBO(46, 29, 61, 1)
+              : Colors.red);
+        }
         _listTileCount = _selectedDates.length;
-        _tileColors.addAll(
-          List<Color>.filled(_selectedDates.length, Colors.red),
-        );
       });
+    }
+  }
+
+  // In your Agazat class
+  void _addDate() {
+    if (_selectedDate != null) {
+      setState(() {
+        _selectedDates.add(_selectedDate!);
+        _tileColors.add(Colors.red); // Default to inactive (red)
+        _listTileCount = _selectedDates.length;
+        _selectedDate = null;
+        _dateController.clear();
+      });
+      _saveSelectedDates();
     }
   }
 
   _saveSelectedDates() {
     final box = Hive.box('datesBox');
-    final dateStrings =
-        _selectedDates.map((date) => date.toIso8601String()).toList();
-    box.put('selectedDates', dateStrings);
+    final List<Map<String, dynamic>> savedData = [];
+
+    for (int i = 0; i < _selectedDates.length; i++) {
+      savedData.add({
+        'date': _selectedDates[i].toIso8601String(),
+        'isActive': _tileColors[i] == Color.fromRGBO(46, 29, 61, 1),
+      });
+    }
+
+    box.put('savedAgazat', savedData);
   }
 
   _removeDate(int index) {
@@ -94,8 +119,11 @@ class AgazatState extends State<Agazat> {
 
   _changeTileColor(int index) {
     setState(() {
-      _tileColors[index] = Color.fromRGBO(46, 29, 61, 1);
+      _tileColors[index] = _tileColors[index] == Colors.red
+          ? Color.fromRGBO(46, 29, 61, 1)
+          : Colors.red;
     });
+    _saveSelectedDates(); // Save the state change
   }
 
   void clearListView() {
@@ -196,49 +224,49 @@ class AgazatState extends State<Agazat> {
                 itemCount: _selectedDates.length,
                 itemBuilder: (context, index) {
                   return Slidable(
-                    key: ValueKey(_selectedDates[index]),
-                    startActionPane: ActionPane(
-                      motion: ScrollMotion(),
-                      children: [
-                        SlidableAction(
-                          onPressed: (context) => _changeTileColor(index),
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          icon: Icons.check,
-                          label: 'تفعيل',
+                      key: ValueKey(_selectedDates[index]),
+                      startActionPane: ActionPane(
+                        motion: ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (context) => _changeTileColor(index),
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            icon: Icons.check,
+                            label: 'تفعيل',
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                        ],
+                      ),
+                      endActionPane: ActionPane(
+                        motion: ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (context) => _removeDate(index),
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete,
+                            label: 'حذف',
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                        ],
+                      ),
+                      child: Container(
+                        margin: EdgeInsets.symmetric(
+                            vertical: 4.0, horizontal: 8.0),
+                        decoration: BoxDecoration(
+                          color: _tileColors[index],
                           borderRadius: BorderRadius.circular(15.0),
                         ),
-                      ],
-                    ),
-                    endActionPane: ActionPane(
-                      motion: ScrollMotion(),
-                      children: [
-                        SlidableAction(
-                          onPressed: (context) => _removeDate(index),
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          icon: Icons.delete,
-                          label: 'حذف',
-                          borderRadius: BorderRadius.circular(15.0),
+                        child: ListTile(
+                          // Remove the tileColor property here
+                          title: Text(
+                            DateFormat('EEE, MMM d, yyyy')
+                                .format(_selectedDates[index]),
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
-                      ],
-                    ),
-                    child: Container(
-                      margin:
-                          EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                      decoration: BoxDecoration(
-                        color: _tileColors[index],
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          DateFormat('EEE, MMM d, yyyy')
-                              .format(_selectedDates[index]),
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  );
+                      ));
                 },
               ),
             ),

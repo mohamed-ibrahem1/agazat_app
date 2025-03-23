@@ -30,25 +30,36 @@ class _BadalatMixState extends State<BadalatMix> {
         box.get('savedDates', defaultValue: <Map<String, String>>[]);
     if (datePairs is List) {
       setState(() {
-        _savedDates.addAll(datePairs.map((pair) {
-          return {
+        _savedDates.clear();
+        _tileColors.clear();
+
+        for (var pair in datePairs) {
+          _savedDates.add({
             'date1': DateTime.parse(pair['date1']!),
             'date2': DateTime.parse(pair['date2']!),
-          };
-        }).toList());
-        _tileColors.addAll(List<Color>.filled(_savedDates.length, Colors.red));
+          });
+
+          // Load the color state (default to red if not found)
+          _tileColors.add(pair['isActive'] == true
+              ? Color.fromRGBO(46, 29, 61, 1)
+              : Colors.red);
+        }
       });
     }
   }
 
   _saveDates() {
     final box = Hive.box('datesBox3');
-    final datePairs = _savedDates.map((pair) {
-      return {
-        'date1': pair['date1']!.toIso8601String(),
-        'date2': pair['date2']!.toIso8601String(),
-      };
-    }).toList();
+    final List<Map<String, dynamic>> datePairs = [];
+
+    for (int i = 0; i < _savedDates.length; i++) {
+      datePairs.add({
+        'date1': _savedDates[i]['date1']!.toIso8601String(),
+        'date2': _savedDates[i]['date2']!.toIso8601String(),
+        'isActive': _tileColors[i] == Color.fromRGBO(46, 29, 61, 1),
+      });
+    }
+
     box.put('savedDates', datePairs);
   }
 
@@ -62,6 +73,7 @@ class _BadalatMixState extends State<BadalatMix> {
     }
   }
 
+  // Update _changeTileColor to save after changing color
   _changeTileColor(int index) {
     if (index >= 0 && index < _tileColors.length) {
       setState(() {
@@ -69,6 +81,7 @@ class _BadalatMixState extends State<BadalatMix> {
             ? Color.fromRGBO(46, 29, 61, 1)
             : Colors.red;
       });
+      _saveDates(); // Save the updated color state
     }
   }
 
@@ -184,33 +197,44 @@ class _BadalatMixState extends State<BadalatMix> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_selectedDate1 != null && _selectedDate2 != null) {
-                        setState(() {
-                          _savedDates.add({
-                            'date1': _selectedDate1,
-                            'date2': _selectedDate2,
-                          });
-                          _tileColors.add(Colors.red);
-                          _selectedDate1 = null;
-                          _selectedDate2 = null;
-                          _dateController1.clear();
-                          _dateController2.clear();
-                          _saveDates();
-                        });
-                      }
-                    },
-                    child: Text('حفظ'),
+                  // Add this Text widget to show the total count
+                  Text(
+                    'عدد البدلات: ${_savedDates.length}',
+                    style: TextStyle(fontSize: 20.0),
                   ),
-                  SizedBox(width: 8.0),
-                  ElevatedButton(
-                    onPressed: _showClearConfirmationDialog,
-                    child: Row(
-                      children: [
-                        Text('مسح الكل', style: TextStyle(color: Colors.red)),
-                      ],
-                    ),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_selectedDate1 != null &&
+                              _selectedDate2 != null) {
+                            setState(() {
+                              _savedDates.add({
+                                'date1': _selectedDate1,
+                                'date2': _selectedDate2,
+                              });
+                              _tileColors.add(Colors.red);
+                              _selectedDate1 = null;
+                              _selectedDate2 = null;
+                              _dateController1.clear();
+                              _dateController2.clear();
+                              _saveDates();
+                            });
+                          }
+                        },
+                        child: Text('حفظ'),
+                      ),
+                      SizedBox(width: 8.0),
+                      ElevatedButton(
+                        onPressed: _showClearConfirmationDialog,
+                        child: Row(
+                          children: [
+                            Text('مسح الكل',
+                                style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

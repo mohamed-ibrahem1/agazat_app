@@ -2,7 +2,6 @@ import 'package:agazat/badalat.dart';
 import 'package:agazat/badalatMix.dart';
 import 'package:agazat/dashboard.dart';
 import 'package:agazat/main.dart';
-import 'package:agazat/statistics.dart';
 import 'package:flutter/material.dart';
 
 import 'ozonat.dart';
@@ -17,7 +16,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
   late Agazat agazatPage;
-  late StatisticsPage statisticsPage;
   late Badalat badalatPage;
   late BadalatMix badalatMixPage;
   late DashboardPage dashboardPage;
@@ -27,7 +25,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     agazatPage = Agazat();
-    statisticsPage = StatisticsPage(listTileCount: 0);
     badalatPage = Badalat();
     badalatMixPage = BadalatMix();
     dashboardPage = DashboardPage();
@@ -40,7 +37,6 @@ class _HomePageState extends State<HomePage> {
       badalatPage,
       badalatMixPage,
       OzonatPage(),
-      statisticsPage,
       dashboardPage,
     ];
     List<String> titles = [
@@ -48,8 +44,7 @@ class _HomePageState extends State<HomePage> {
       'البدلات',
       'بدلات مجمعه',
       'الأذونات',
-      'الاحصائيات',
-      'اجمالي'
+      'احصائيات'
     ];
 
     return Scaffold(
@@ -122,24 +117,12 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.bar_chart),
-              title: Text('الاحصائيات'),
-              onTap: () {
-                setState(() {
-                  selectedIndex = 4;
-                  statisticsPage = StatisticsPage(
-                      listTileCount: (agazatPage.createState()).listTileCount);
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.timer),
-              title: Text('اجمالي'),
+              leading: Icon(Icons.stacked_bar_chart),
+              title: Text('احصائيات'),
               onTap: () {
                 setState(() {
                   selectedIndex =
-                      5; // Make sure to update other indices if needed
+                      4; // Make sure to update other indices if needed
                 });
                 Navigator.pop(context);
               },
