@@ -200,8 +200,6 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
-
               const SizedBox(height: 24),
               // Day of Week Card
               _buildDayPickerCard(
