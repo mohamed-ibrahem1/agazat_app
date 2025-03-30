@@ -160,6 +160,7 @@ class _OzonatPageState extends State<OzonatPage> {
                 readOnly: true,
                 decoration: InputDecoration(
                   labelText: 'تاريخ الإذن',
+                  suffixIcon: const Icon(Icons.calendar_month_rounded),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15.0),
                   ),
@@ -326,6 +327,7 @@ class _OzonatPageState extends State<OzonatPage> {
                   return Slidable(
                     key: ValueKey(index),
                     startActionPane: ActionPane(
+                      extentRatio: 0.30,
                       motion: const ScrollMotion(),
                       children: [
                         SlidableAction(
@@ -339,6 +341,7 @@ class _OzonatPageState extends State<OzonatPage> {
                       ],
                     ),
                     endActionPane: ActionPane(
+                      extentRatio: 0.30,
                       motion: const ScrollMotion(),
                       children: [
                         SlidableAction(

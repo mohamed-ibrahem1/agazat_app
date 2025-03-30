@@ -102,7 +102,7 @@ class AgazatState extends State<Agazat> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('تأكيد'),
-          content: const Text('هل أنت متأكد من أنك تريد ��سح جميع البيانات؟'),
+          content: const Text('هل انت متأكد من انك تريد مسح جميع البيانات؟'),
           actions: <Widget>[
             TextButton(
               child: const Text('إلغاء'),
@@ -132,11 +132,49 @@ class AgazatState extends State<Agazat> {
     );
 
     if (pickedDate != null) {
-      setState(() {
-        _selectedDate = pickedDate;
-        _dateController.text =
-            DateFormat('EEE, MMM d, yyyy').format(pickedDate);
-      });
+      // Check for duplicate date before saving
+      bool isDuplicate = _selectedDates.any((date) =>
+          date.year == pickedDate.year &&
+          date.month == pickedDate.month &&
+          date.day == pickedDate.day);
+
+      if (isDuplicate) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('هذا التاريخ موجود بالفعل في قائمة الاجازات',
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+        );
+      } else {
+        setState(() {
+          _selectedDates.add(pickedDate);
+          _tileColors.add(Colors.red);
+          _listTileCount = _selectedDates.length;
+          _selectedDate = null;
+          _dateController.clear();
+        });
+        _saveSelectedDates();
+
+        // Show confirmation
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('تم إضافة التاريخ بنجاح',
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -159,21 +197,14 @@ class AgazatState extends State<Agazat> {
                       controller: _dateController,
                       readOnly: true,
                       decoration: InputDecoration(
-                        hintText: 'اختر تاريخ الاجازة',
+                        hintText: 'اضغط لاختيار تاريخ الاجازة',
+                        suffixIcon: const Icon(Icons.calendar_month_rounded),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15.0),
                         ),
                       ),
                       onTap: () => _selectDate(context),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _addDate,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('إضافة'),
                   ),
                 ],
               ),
@@ -206,6 +237,7 @@ class AgazatState extends State<Agazat> {
                     return Slidable(
                       key: ValueKey(_selectedDates[index]),
                       startActionPane: ActionPane(
+                        extentRatio: 0.30,
                         motion: const ScrollMotion(),
                         children: [
                           SlidableAction(
@@ -219,6 +251,7 @@ class AgazatState extends State<Agazat> {
                         ],
                       ),
                       endActionPane: ActionPane(
+                        extentRatio: 0.30,
                         motion: const ScrollMotion(),
                         children: [
                           SlidableAction(
@@ -232,7 +265,8 @@ class AgazatState extends State<Agazat> {
                         ],
                       ),
                       child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 4.0, horizontal: 4.0),
                         decoration: BoxDecoration(
                           color: _tileColors[index],
                           borderRadius: BorderRadius.circular(15.0),

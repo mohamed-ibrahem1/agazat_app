@@ -106,6 +106,7 @@ class BadalatState extends State<Badalat> {
                   readOnly: true,
                   decoration: InputDecoration(
                     hintText: 'اختر تاريخ البدل ',
+                    suffixIcon: const Icon(Icons.calendar_month_rounded),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
@@ -118,14 +119,53 @@ class BadalatState extends State<Badalat> {
                       lastDate: DateTime(2101),
                     );
                     if (pickedDate != null) {
-                      setState(() {
-                        _selectedDate = pickedDate;
-                        _selectedDates.add(pickedDate);
-                        _tileColors.add(Color.fromRGBO(46, 29, 61, 1));
-                        _listTileCount = _selectedDates.length;
-                        _dateController.text = '';
-                      });
-                      _saveSelectedDates();
+                      // Check for duplicate date before saving
+                      bool isDuplicate = _selectedDates.any((date) =>
+                          date.year == pickedDate.year &&
+                          date.month == pickedDate.month &&
+                          date.day == pickedDate.day);
+
+                      if (isDuplicate) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              'هذا التاريخ موجود بالفعل في قائمة البدلات',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.red,
+                            behavior: SnackBarBehavior.floating,
+                            margin: const EdgeInsets.all(10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                        );
+                      } else {
+                        setState(() {
+                          _selectedDate = pickedDate;
+                          _selectedDates.add(pickedDate);
+                          _tileColors.add(const Color.fromRGBO(46, 29, 61, 1));
+                          _listTileCount = _selectedDates.length;
+                          _dateController.text = '';
+                        });
+                        _saveSelectedDates();
+
+                        // Show confirmation
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              'تم إضافة التاريخ بنجاح',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.green,
+                            behavior: SnackBarBehavior.floating,
+                            margin: const EdgeInsets.all(10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                        );
+                      }
                     }
                   },
                 ),
@@ -157,6 +197,7 @@ class BadalatState extends State<Badalat> {
                     return Slidable(
                       key: ValueKey(_selectedDates[index]),
                       endActionPane: ActionPane(
+                        extentRatio: 0.30,
                         motion: ScrollMotion(),
                         children: [
                           SlidableAction(

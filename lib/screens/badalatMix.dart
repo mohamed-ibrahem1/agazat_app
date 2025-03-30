@@ -137,6 +137,7 @@ class _BadalatMixState extends State<BadalatMix> {
                         readOnly: true,
                         decoration: InputDecoration(
                           hintText: 'اليوم',
+                          suffixIcon: const Icon(Icons.calendar_month_rounded),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15.0),
                           ),
@@ -168,6 +169,7 @@ class _BadalatMixState extends State<BadalatMix> {
                         readOnly: true,
                         decoration: InputDecoration(
                           hintText: 'بدل عن يوم',
+                          suffixIcon: const Icon(Icons.calendar_month_rounded),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15.0),
                           ),
@@ -248,6 +250,7 @@ class _BadalatMixState extends State<BadalatMix> {
                     return Slidable(
                       key: ValueKey(datePair),
                       startActionPane: ActionPane(
+                        extentRatio: 0.30,
                         motion: ScrollMotion(),
                         children: [
                           SlidableAction(
@@ -261,6 +264,7 @@ class _BadalatMixState extends State<BadalatMix> {
                         ],
                       ),
                       endActionPane: ActionPane(
+                        extentRatio: 0.30,
                         motion: ScrollMotion(),
                         children: [
                           SlidableAction(

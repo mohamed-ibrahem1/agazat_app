@@ -8,7 +8,7 @@ import 'screens/badalatMix.dart';
 import 'screens/ozonat.dart';
 
 class AppContainer extends StatefulWidget {
-  const AppContainer({Key? key}) : super(key: key);
+  const AppContainer({super.key});
 
   @override
   _AppContainerState createState() => _AppContainerState();
@@ -38,7 +38,7 @@ class _AppContainerState extends State<AppContainer> {
       extendBody: true, // Important to allow content to extend behind nav bar
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(
-            10, 0, 10, 0), // Horizontal and bottom margin
+            8, 0, 8, 0), // Horizontal and bottom margin
         child: Container(
           // Remove the Padding widget completely
           margin:
@@ -80,14 +80,14 @@ class _AppContainerState extends State<AppContainer> {
         children: [
           Icon(
             icon,
-            color: isSelected ? Colors.white : Colors.grey,
-            size: 24,
+            color: isSelected ? Colors.purpleAccent : Colors.white,
+            size: 26,
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : Colors.grey,
+              color: isSelected ? Colors.purpleAccent : Colors.white,
               fontSize: 10,
             ),
           ),
