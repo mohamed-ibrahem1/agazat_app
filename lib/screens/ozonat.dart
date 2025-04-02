@@ -299,8 +299,14 @@ class _OzonatPageState extends State<OzonatPage> {
                       // Show an error message if fields are empty
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('برجاء ملء جميع الحقول'),
+                          content: Text('برجاء ملء جميع الحقول',
+                              style: TextStyle(color: Colors.white)),
                           backgroundColor: Colors.red,
+                          behavior: SnackBarBehavior.floating,
+                          margin: const EdgeInsets.all(10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
                         ),
                       );
                     }
