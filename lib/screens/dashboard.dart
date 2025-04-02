@@ -33,6 +33,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
+    _loadUserDefinedAgazat();
     _loadStatistics();
     _loadSelectedDay();
   }
@@ -101,6 +102,14 @@ class _DashboardPageState extends State<DashboardPage> {
 
       // Calculate active items (this depends on your actual data structure)
       // This is just an example, adjust according to your actual implementation
+    });
+  }
+
+  Future<void> _loadUserDefinedAgazat() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userDefinedAgazat = prefs.getInt('userDefinedAgazat') ?? 21;
+      remainingAgazat = userDefinedAgazat - totalAgazat;
     });
   }
 
@@ -174,12 +183,17 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             TextButton(
               child: const Text('حفظ'),
-              onPressed: () {
+              onPressed: () async {
+                final newValue = int.tryParse(_agazatController.text) ?? 21;
                 setState(() {
-                  userDefinedAgazat =
-                      int.tryParse(_agazatController.text) ?? 21;
+                  userDefinedAgazat = newValue;
                   remainingAgazat = userDefinedAgazat - totalAgazat;
                 });
+
+                // Persist value to SharedPreferences
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setInt('userDefinedAgazat', newValue);
+
                 Navigator.of(context).pop();
               },
             ),

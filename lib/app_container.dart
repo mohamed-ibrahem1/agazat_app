@@ -63,7 +63,7 @@ class _AppContainerState extends State<AppContainer> {
               _buildNavItem(1, Icons.calendar_today, 'الاجازات'),
               _buildNavItem(2, Icons.access_time, 'الاذونات'),
               _buildNavItem(3, Icons.swap_horiz, 'البدلات'),
-              _buildNavItem(4, Icons.compare_arrows, 'بدلات مجمعة'),
+              _buildNavItem(4, Icons.compare_arrows, 'بدلات مستخدمة'),
             ],
           ),
         ),
